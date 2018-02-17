@@ -24,7 +24,13 @@ namespace Session_04_CustomeRouting
             app.UseDeveloperExceptionPage();
             app.UseStatusCodePages();
             app.UseStaticFiles();
-            app.UseMvcWithDefaultRoute();
+            app.UseMvc(route =>
+            {
+                route.Routes.Add(new MyCustomRouting(route.DefaultHandler));
+                route.MapRoute(
+                    name:"Default",
+                    template:"{controller=Home}/{action=Index}/{id?}");
+            });
             
         }
     }

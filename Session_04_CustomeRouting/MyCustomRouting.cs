@@ -8,6 +8,13 @@ namespace Session_04_CustomeRouting
 {
     public class MyCustomRouting : IRouter
     {
+        private IRouter _defaultRouter;
+
+        public MyCustomRouting(IRouter router)
+        {
+            _defaultRouter = router;
+        }
+
         /// <summary>
         /// Generate New Address
         /// </summary>
@@ -15,7 +22,7 @@ namespace Session_04_CustomeRouting
         /// <returns></returns>
         public VirtualPathData GetVirtualPath(VirtualPathContext context)
         {
-            throw new NotImplementedException();
+            return _defaultRouter.GetVirtualPath(context);
         }
 
         /// <summary>
@@ -23,9 +30,35 @@ namespace Session_04_CustomeRouting
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public Task RouteAsync(RouteContext context)
+        public async Task RouteAsync(RouteContext context)
         {
-            throw new NotImplementedException();
+            var path = context.HttpContext.Request.Path.Value;
+            if (path.Contains(".aspx"))
+            {
+                var pathArrey = context.HttpContext.Request.Path.Value.Split('/');
+                if (pathArrey.Length == 3)
+                {
+                    context.RouteData.Values["controller"] = pathArrey[1];
+                    context.RouteData.Values["action"] = pathArrey[2].Split('.')[0];
+                }
+                else if (pathArrey.Length==2)
+                {
+                    context.RouteData.Values["controller"] = "Home";
+                    context.RouteData.Values["action"] = pathArrey[1].Split('.')[0];
+                }
+                else
+                {
+                    context.RouteData.Values["controller"] = "Home";
+                    context.RouteData.Values["action"] = "index";
+                }
+            }
+
+                
+
+                await _defaultRouter.RouteAsync(context);
+            
         }
     }
+
+
 }
